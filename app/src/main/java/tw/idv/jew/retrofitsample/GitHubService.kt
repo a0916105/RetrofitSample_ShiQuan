@@ -1,5 +1,6 @@
 package tw.idv.jew.retrofitsample
 
+import io.reactivex.rxjava3.core.Single
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -11,5 +12,5 @@ interface GitHubService {
         @Path("user") user: String,
         @Query("type") type: String? = null,
         @Query("sort") sort: String? = null
-    ): Call<List<Repo>>
+    ): Single<List<Repo>>
 }
