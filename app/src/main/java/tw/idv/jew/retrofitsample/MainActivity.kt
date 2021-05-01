@@ -2,8 +2,13 @@ package tw.idv.jew.retrofitsample
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.lang.Exception
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -15,5 +20,35 @@ class MainActivity : AppCompatActivity() {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
         val service = retrofit.create(GitHubService::class.java)
+
+        //Sync way：execute()不適合在UI執行緒中，使用
+        /*try {
+            val response = service.listRepos("a0916105").execute()
+            if (response.isSuccessful) {
+                // success
+            }else {
+                //application level fail
+            }
+        }catch (exception: Exception) {
+            //network fail or other error
+        }*/
+
+        //Async way：enqueue()
+        service.listRepos("a0916105")
+            .enqueue(object : Callback<List<Repo>> {
+                override fun onFailure(call: Call<List<Repo>>, t: Throwable) {
+                    //network fail
+                    Toast.makeText(this@MainActivity, "Network fail or other error", Toast.LENGTH_SHORT).show()
+                }
+
+                override fun onResponse(call: Call<List<Repo>>, response: Response<List<Repo>>) {
+                    if (response.isSuccessful) {
+                        // success
+                    } else {
+                        //application level fail
+                        Toast.makeText(this@MainActivity, "Application level fail", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            })
     }
 }
